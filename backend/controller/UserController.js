@@ -5,11 +5,11 @@ require("dotenv").config();
 // ✅ Create a New User (Auto-Increment `user_id`)
 exports.createUser = async (req, res) => {
     try {
-        const { first_name, last_name, phone_number, email, password, role, address } = req.body;
+        const { first_name, last_name, address, phone_number, email, password, role } = req.body;
         const db = req.db;
 
         // Validate role
-        const validRoles = ['customer', 'manager', 'admin'];
+        const validRoles = ['customer', 'manager', 'admin','cashier'];
         if (role && !validRoles.includes(role)) {
             return res.status(400).json({ message: "🚨 Invalid role. Must be one of: customer, manager, admin" });
         }
@@ -25,17 +25,17 @@ exports.createUser = async (req, res) => {
             // ✅ Hash Password
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            // ✅ Insert user WITHOUT `user_id`
+            // ✅ Insert user WITHOUT `user_id` (it's auto-incremented)
             db.execute(
-                "INSERT INTO user (first_name, last_name, phone_number, email, password, role, address) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [first_name, last_name, phone_number, email, hashedPassword, role || 'customer', address],
+                "INSERT INTO user (first_name, last_name, address, phone_number, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [first_name, last_name, address, phone_number, email, hashedPassword, role || 'customer'],
                 (err, result) => {
                     if (err) return res.status(500).json({ message: "Server Error", error: err });
 
                     res.status(201).json({
                         message: "✅ User created successfully",
-                        user_id: result.insertId, // ✅ Return the auto-generated `user_id`
-                        role: role || 'customer' // Return the role that was set
+                        user_id: result.insertId,
+                        role: role || 'customer'
                     });
                 }
             );
@@ -74,11 +74,11 @@ exports.login = async (req, res) => {
                 { 
                     user_id: user.user_id, 
                     email: user.email,
-                    role: user.role // Include role in the token
+                    role: user.role
                 }, 
                 process.env.JWT_SECRET, 
                 { 
-                    expiresIn: "1h",
+                    expiresIn: "3h",
                     algorithm: 'HS256'
                 }
             );
@@ -99,8 +99,8 @@ exports.login = async (req, res) => {
                     last_name: user.last_name,
                     email: user.email,
                     role: user.role,
-                    phone_number: user.phone_number,
-                    address: user.address
+                    address: user.address,
+                    phone_number: user.phone_number
                 }
             });
         });
@@ -160,16 +160,8 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { first_name, last_name, phone_number, email, address, role } = req.body;
+        const { first_name, last_name, address, phone_number, email } = req.body;
         const db = req.db;
-
-        // Validate role if provided
-        if (role) {
-            const validRoles = ['customer', 'manager', 'admin'];
-            if (!validRoles.includes(role)) {
-                return res.status(400).json({ message: "🚨 Invalid role. Must be one of: customer, manager, admin" });
-            }
-        }
 
         // ✅ Check if user exists
         db.execute("SELECT * FROM user WHERE user_id = ?", [id], (err, results) => {
@@ -181,8 +173,8 @@ exports.updateUser = async (req, res) => {
 
             // ✅ Update user details
             db.execute(
-                "UPDATE user SET first_name=?, last_name=?, phone_number=?, email=?, address=?, role=? WHERE user_id=?",
-                [first_name, last_name, phone_number, email, address, role, id],
+                "UPDATE user SET first_name=?, last_name=?, address=?, phone_number=?, email=? WHERE user_id=?",
+                [first_name, last_name, address, phone_number, email, id],
                 (err, result) => {
                     if (err) return res.status(500).json({ message: "Server Error", error: err });
 
@@ -238,5 +230,27 @@ exports.verifyToken = async (req, res) => {
     } catch (error) {
         console.error("Token Verification Error:", error);
         res.status(401).json({ message: "❌ Token verification failed" });
+    }
+};
+
+// ✅ Get Users by Role
+exports.getUsersByRole = async (req, res) => {
+    try {
+        const { role } = req.params;
+        const db = req.db;
+
+        // Validate role
+        const validRoles = ['customer', 'manager', 'admin', 'cashier'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ message: "🚨 Invalid role. Must be one of: customer, manager, admin, cashier" });
+        }
+
+        db.execute("SELECT * FROM user WHERE role = ?", [role], (err, results) => {
+            if (err) return res.status(500).json({ message: "Server Error", error: err });
+
+            res.status(200).json(results);
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server Error", error });
     }
 };

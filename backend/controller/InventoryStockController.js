@@ -328,4 +328,103 @@ exports.getTotalStockByItemId = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Server Error", error });
     }
+};
+
+// Get stock analytics
+exports.getStockAnalytics = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: "Unauthorized: User not found in request" });
+        }
+
+        const db = req.db;
+
+        // Get total items and items below restock level
+        const [stockSummary] = await db.promise().execute(`
+            SELECT 
+                COUNT(DISTINCT i.item_id) as total_items,
+                SUM(CASE WHEN COALESCE(s.total_quantity, 0) < i.restock_level THEN 1 ELSE 0 END) as items_below_restock
+            FROM inventory_item i
+            LEFT JOIN (
+                SELECT item_id, SUM(quantity_available) as total_quantity
+                FROM inventory_stock
+                GROUP BY item_id
+            ) s ON i.item_id = s.item_id
+        `);
+
+        // Get stock value by category
+        const [categoryValue] = await db.promise().execute(`
+            SELECT 
+                i.category,
+                COUNT(DISTINCT i.item_id) as item_count,
+                SUM(s.quantity_available) as total_quantity,
+                SUM(s.quantity_available * p.buying_price) as total_value
+            FROM inventory_item i
+            LEFT JOIN inventory_stock s ON i.item_id = s.item_id
+            LEFT JOIN purchase p ON s.purchase_id = p.purchase_id
+            GROUP BY i.category
+            ORDER BY total_value DESC
+        `);
+
+        // Get items below restock level with details
+        const [lowStockItems] = await db.promise().execute(`
+            SELECT 
+                i.item_id,
+                i.item_name,
+                i.category,
+                i.restock_level,
+                COALESCE(s.total_quantity, 0) as current_stock
+            FROM inventory_item i
+            LEFT JOIN (
+                SELECT item_id, SUM(quantity_available) as total_quantity
+                FROM inventory_stock
+                GROUP BY item_id
+            ) s ON i.item_id = s.item_id
+            WHERE COALESCE(s.total_quantity, 0) < i.restock_level
+            ORDER BY (i.restock_level - COALESCE(s.total_quantity, 0)) DESC
+        `);
+
+        // Get recent stock movements (last 10)
+        const [recentMovements] = await db.promise().execute(`
+            SELECT 
+                ir.release_id,
+                ir.date_time,
+                i.item_name,
+                i.category,
+                ir.quantity as quantity_released,
+                o.order_type
+            FROM inventory_release ir
+            JOIN inventory_item i ON ir.item_id = i.item_id
+            LEFT JOIN orders o ON ir.order_id = o.order_id
+            ORDER BY ir.date_time DESC
+            LIMIT 10
+        `);
+
+        // Get most used items (last 30 days)
+        const [mostUsedItems] = await db.promise().execute(`
+            SELECT 
+                i.item_id,
+                i.item_name,
+                i.category,
+                COUNT(ir.release_id) as usage_count,
+                SUM(ir.quantity) as total_quantity_used
+            FROM inventory_item i
+            LEFT JOIN inventory_release ir ON i.item_id = ir.item_id
+            WHERE ir.date_time >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+            GROUP BY i.item_id, i.item_name, i.category
+            ORDER BY total_quantity_used DESC
+            LIMIT 10
+        `);
+
+        res.status(200).json({
+            summary: stockSummary[0],
+            categoryValue,
+            lowStockItems,
+            recentMovements,
+            mostUsedItems
+        });
+    } catch (error) {
+        console.error("Get Stock Analytics Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
 }; 

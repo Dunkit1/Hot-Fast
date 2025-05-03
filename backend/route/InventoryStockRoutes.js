@@ -8,7 +8,8 @@ const {
     getStockByItemId,
     getTotalStockByItemId,
     updateStock,
-    deleteStock
+    deleteStock,
+    getStockAnalytics
 } = require("../controller/InventoryStockController");
 
 // Create new stock entry (Manager and Admin only)
@@ -16,6 +17,9 @@ router.post("/", authenticateUser, createStock);
 
 // Get all stock entries
 router.get("/", authenticateUser, getAllStock);
+
+// Get stock analytics
+router.get("/analytics", authenticateUser, getStockAnalytics);
 
 // Get total available stock for an item
 router.get("/total/:itemId", authenticateUser, getTotalStockByItemId);
