@@ -11,6 +11,9 @@ import ProductManagement from "./pages/ProductManagement";
 import ImageUploadPage from './pages/ImageUploadPage';
 import ProductInventoryRelease from "./pages/ProductInventoryRelease";
 import RecipeManagement from "./pages/RecipeManagement";
+import ProductStore from "./pages/ProductStore";
+import ProductLog from "./pages/ProductLog";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,6 +32,9 @@ const App = () => {
   "/image-upload",
   "/product-inventory-release",
   "/recipe-management",
+  "/product-store",
+  "/product-log",
+  "/order-confirmation",
   ];
 
   const shouldHideNavbar = hideNavbarPaths.includes(location.pathname);
@@ -47,6 +53,10 @@ const App = () => {
         <Route path="/image-upload" element={<ImageUploadPage />} />
         <Route path="/product-inventory-release" element={<ProductInventoryRelease />} />
         <Route path="/recipe-management" element={<RecipeManagement />} />
+        <Route path="/product-store" element={<ProductStore />} />
+        <Route path="/product-log" element={<ProductLog />} />
+        <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
+        
         
       </Routes>
       <ToastContainer
