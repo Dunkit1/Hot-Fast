@@ -355,12 +355,12 @@ exports.confirmPayment = async (req, res) => {
                         'UPDATE orders SET order_status = ? WHERE order_id = ?',
                         ['COMPLETED', order_id]
                     );
-                } else {
-                    // Update order status to COMPLETED for production orders too
-                    await db.promise().execute(
-                        'UPDATE orders SET order_status = ? WHERE order_id = ?',
-                        ['COMPLETED', order_id]
-                    );
+                // } else {
+                //     // Update order status to COMPLETED for production orders too
+                //     await db.promise().execute(
+                //         'UPDATE orders SET order_status = ? WHERE order_id = ?',
+                //         ['COMPLETED', order_id]
+                //     );
                 }
             }
 

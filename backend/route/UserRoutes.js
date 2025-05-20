@@ -8,6 +8,9 @@ const router = express.Router();
 router.post("/register", userController.createUser); // Create User
 router.post("/login", userController.login); // Login User
 router.post("/logout", userController.logout); // Logout User
+router.post("/forget-password", userController.forgetPassword); // Forget Password
+router.post("/verify-code", userController.verifyCode); // Verify Code
+router.post("/reset-password", userController.resetPassword); // Reset Password
 
 // Protected Routes
 router.get("/users", authenticateUser, userController.getUsers); // Get All Users

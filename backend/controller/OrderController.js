@@ -1181,32 +1181,6 @@ const updateOrderStatus = async (req, res) => {
                 [orderId]
             );
             
-            console.log(`Updating product stock for ${orderItems.length} items`);
-            
-            // Update product stock for each item
-            for (const item of orderItems) {
-                // Check if product stock exists
-                const [stockRows] = await db.promise().execute(
-                    'SELECT * FROM product_stock WHERE product_id = ?',
-                    [item.product_id]
-                );
-                
-                if (stockRows.length > 0) {
-                    // Update existing stock
-                    await db.promise().execute(
-                        'UPDATE product_stock SET quantity_available = quantity_available + ?, last_updated = NOW() WHERE product_id = ?',
-                        [item.quantity, item.product_id]
-                    );
-                } else {
-                    // Create new stock record
-                    await db.promise().execute(
-                        'INSERT INTO product_stock (product_id, quantity_available, last_updated) VALUES (?, ?, NOW())',
-                        [item.product_id, item.quantity]
-                    );
-                }
-                
-                console.log(`Updated stock for product ${item.product_id} with quantity ${item.quantity}`);
-            }
         }
         
         res.json({
@@ -1365,7 +1339,6 @@ const processOrder = async (db, order_id) => {
 
     console.log(`✅ Inventory processed using FIFO for order_id ${order_id}`);
 };
-
 
 const processProductionOrder = async (req, res) => {
     const db = req.db;

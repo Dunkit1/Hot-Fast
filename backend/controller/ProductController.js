@@ -18,7 +18,8 @@ exports.createProduct = async (req, res) => {
             selling_price,
             category,
             unit,
-            image_url
+            image_url,
+            min_production_amount
         } = req.body;
 
         const db = req.db;
@@ -26,6 +27,11 @@ exports.createProduct = async (req, res) => {
         // Validate selling price
         if (selling_price <= 0) {
             return res.status(400).json({ message: "Selling price must be greater than 0" });
+        }
+
+        // Validate minimum production amount
+        if (min_production_amount !== undefined && min_production_amount <= 0) {
+            return res.status(400).json({ message: "Minimum production amount must be greater than 0" });
         }
 
         // Check if product with same name already exists
@@ -44,9 +50,9 @@ exports.createProduct = async (req, res) => {
         const [result] = await db.promise().execute(
             `INSERT INTO product (
                 product_name, description, selling_price,
-                category, unit, image_url
-            ) VALUES (?, ?, ?, ?, ?, ?)`,
-            [product_name, description, selling_price, category, unit, image_url]
+                category, unit, image_url, min_production_amount
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [product_name, description, selling_price, category, unit, image_url, min_production_amount || null]
         );
 
         res.status(201).json({
@@ -168,7 +174,8 @@ exports.updateProduct = async (req, res) => {
             category,
             unit,
             image_url,
-            isActive
+            isActive,
+            min_production_amount
         } = req.body;
 
         // Validate required fields for full update
@@ -181,6 +188,11 @@ exports.updateProduct = async (req, res) => {
         // Validate selling price
         if (selling_price <= 0) {
             return res.status(400).json({ message: "Selling price must be greater than 0" });
+        }
+
+        // Validate minimum production amount if provided
+        if (min_production_amount !== undefined && min_production_amount <= 0) {
+            return res.status(400).json({ message: "Minimum production amount must be greater than 0" });
         }
 
         // Check if updated name would conflict with another product
@@ -204,9 +216,10 @@ exports.updateProduct = async (req, res) => {
                  category = ?, 
                  unit = ?, 
                  image_url = ?,
-                 isActive = COALESCE(?, isActive)
+                 isActive = COALESCE(?, isActive),
+                 min_production_amount = ?
              WHERE product_id = ?`,
-            [product_name, description, selling_price, category, unit, image_url, isActive, productId]
+            [product_name, description, selling_price, category, unit, image_url, isActive, min_production_amount || null, productId]
         );
 
         res.status(200).json({ message: "✅ Product updated successfully" });
@@ -320,6 +333,43 @@ exports.getProductStock = async (req, res) => {
         });
     }
 }; 
+// Get product names by IDs
+exports.getProductNamesByIds = async (req, res) => {
+    try {
+        const { ids } = req.query;
+        
+        if (!ids) {
+            return res.status(400).json({ message: "Product IDs are required" });
+        }
+        
+        // Convert the comma-separated string to an array
+        const productIds = ids.split(',').map(id => parseInt(id.trim()));
+        
+        const db = req.db;
+        
+        // Use placeholders for each ID in the query
+        const placeholders = productIds.map(() => '?').join(',');
+        
+        db.execute(
+            `SELECT product_id, product_name FROM product WHERE product_id IN (${placeholders})`,
+            productIds,
+            (err, results) => {
+                if (err) return res.status(500).json({ message: "Server Error", error: err });
+                
+                // Convert to a map of id -> name for easier lookup
+                const productMap = {};
+                results.forEach(product => {
+                    productMap[product.product_id] = product.product_name;
+                });
+                
+                res.status(200).json(productMap);
+            }
+        );
+    } catch (error) {
+        console.error("Get Product Names Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
 
 
 

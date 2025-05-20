@@ -3,6 +3,13 @@ const mysql = require('mysql2');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const { exec } = require('child_process');
+
+const cron = require('node-cron');
+const axios = require('axios');
+
+
+
 const userRoutes = require("./route/UserRoutes");
 const feedbackRoutes = require("./route/FeedbackRoutes");
 const inventoryItemRoutes = require("./route/InventoryItemRoutes");
@@ -72,6 +79,74 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/sales", saleRoutes);
 app.use("/api/production-inventory-releases", productInventoryReleaseRoutes);
 app.use('/api', predictSalesRoute);
+
+
+// ✅ TRAIN MODEL API
+app.get('/train-model', (req, res) => {
+  exec(
+    `python AI_MODEL_REAL_ONE/train_model.py`,
+    (err, stdout, stderr) => {
+      if (err) {
+        return res.status(500).json({ error: stderr || err.message });
+      }
+      console.log(stdout);
+      res.json({ message: '✅ Model trained successfully!' });
+    }
+  );
+});
+
+app.get('/predict', (req, res) => {
+  const { date } = req.query;
+  if (!date) return res.status(400).json({ error: "Date is required" });
+
+  const scriptPath = `python AI_MODEL_REAL_ONE/predict.py ${date}`;
+
+  exec(scriptPath, (err, stdout, stderr) => {
+    if (err) {
+      return res.status(500).json({ error: stderr || err.message });
+    }
+
+    try {
+      const predictions = JSON.parse(stdout);
+      res.json(predictions);
+    } catch (e) {
+      res.status(500).json({ error: "Failed to parse model response" });
+    }
+  });
+});
+
+// 🧠 Schedule job to run daily at 2:00 AM
+cron.schedule('* * * * *', async () => {  // runs every minute
+  try {
+    console.log("🕑 Running daily model training...");
+
+    const response = await axios.get('http://localhost:3000/train-model');
+
+    console.log("✅ Daily model training response:", response.data);
+  } catch (error) {
+    console.error("❌ Error in daily model training:", error.message);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Start Express Server
 app.listen(PORT, () => {

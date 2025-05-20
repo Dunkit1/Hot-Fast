@@ -1,6 +1,17 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const { sendVerificationCode } = require("../utils/emailService");
 require("dotenv").config();
+
+// Create nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 // ✅ Create a New User (Auto-Increment `user_id`)
 exports.createUser = async (req, res) => {
@@ -9,12 +20,12 @@ exports.createUser = async (req, res) => {
         const db = req.db;
 
         // Validate role
-        const validRoles = ['customer', 'manager', 'admin','cashier'];
+        const validRoles = ['customer', 'manager', 'admin', 'cashier'];
         if (role && !validRoles.includes(role)) {
-            return res.status(400).json({ message: "🚨 Invalid role. Must be one of: customer, manager, admin" });
+            return res.status(400).json({ message: "🚨 Invalid role. Must be one of: customer, manager, admin, cashier" });
         }
 
-        // ✅ Check if email already exists
+        // Check if email already exists
         db.execute("SELECT * FROM user WHERE email = ?", [email], async (err, existingUser) => {
             if (err) return res.status(500).json({ message: "Server Error", error: err });
 
@@ -22,23 +33,32 @@ exports.createUser = async (req, res) => {
                 return res.status(400).json({ message: "🚨 Email already in use!" });
             }
 
-            // ✅ Hash Password
-            const hashedPassword = await bcrypt.hash(password, 10);
+            // ✅ Check if phone number already exists
+            db.execute("SELECT * FROM user WHERE phone_number = ?", [phone_number], async (err, existingPhone) => {
+                if (err) return res.status(500).json({ message: "Server Error", error: err });
 
-            // ✅ Insert user WITHOUT `user_id` (it's auto-incremented)
-            db.execute(
-                "INSERT INTO user (first_name, last_name, address, phone_number, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [first_name, last_name, address, phone_number, email, hashedPassword, role || 'customer'],
-                (err, result) => {
-                    if (err) return res.status(500).json({ message: "Server Error", error: err });
-
-                    res.status(201).json({
-                        message: "✅ User created successfully",
-                        user_id: result.insertId,
-                        role: role || 'customer'
-                    });
+                if (existingPhone.length > 0) {
+                    return res.status(400).json({ message: "🚨 Phone number already in use!" });
                 }
-            );
+
+                // ✅ Hash password
+                const hashedPassword = await bcrypt.hash(password, 10);
+
+                // ✅ Insert user
+                db.execute(
+                    "INSERT INTO user (first_name, last_name, address, phone_number, email, password, role) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [first_name, last_name, address, phone_number, email, hashedPassword, role || 'customer'],
+                    (err, result) => {
+                        if (err) return res.status(500).json({ message: "Server Error", error: err });
+
+                        res.status(201).json({
+                            message: "✅ User created successfully",
+                            user_id: result.insertId,
+                            role: role || 'customer'
+                        });
+                    }
+                );
+            });
         });
 
     } catch (error) {
@@ -46,6 +66,7 @@ exports.createUser = async (req, res) => {
         res.status(500).json({ message: "Server Error", error });
     }
 };
+
 
 // ✅ LOGIN USER (Using Cookie-Based Authentication)
 exports.login = async (req, res) => {
@@ -253,4 +274,104 @@ exports.getUsersByRole = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Server Error", error });
     }
+};
+
+// Forget Password
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const db = req.db;
+
+    // Check if user exists
+    db.execute("SELECT * FROM user WHERE email = ?", [email], async (err, results) => {
+      if (err) return res.status(500).json({ message: "Server Error", error: err });
+
+      if (results.length === 0) {
+        return res.status(404).json({ message: "No account found with this email" });
+      }
+
+      // Generate verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiryTime = new Date(Date.now() + 10 * 60000); // 10 minutes from now
+
+      // Store verification code in database
+      db.execute(
+        "UPDATE user SET reset_code = ?, reset_code_expiry = ? WHERE email = ?",
+        [verificationCode, expiryTime, email],
+        async (err) => {
+          if (err) return res.status(500).json({ message: "Server Error", error: err });
+
+          // Send verification code to user's email using emailService
+          try {
+            await sendVerificationCode(email, verificationCode);
+            res.status(200).json({ success: true, message: "Verification code sent to email" });
+          } catch (error) {
+            console.error('Error sending verification email:', error);
+            res.status(500).json({ message: "Failed to send verification email", error: error.message });
+          }
+        }
+      );
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+// Verify Code
+exports.verifyCode = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    const db = req.db;
+
+    db.execute(
+      "SELECT reset_code, reset_code_expiry FROM user WHERE email = ?",
+      [email],
+      (err, results) => {
+        if (err) return res.status(500).json({ message: "Server Error", error: err });
+
+        if (results.length === 0) {
+          return res.status(404).json({ message: "Invalid email" });
+        }
+
+        const user = results[0];
+        const now = new Date();
+        const expiryTime = new Date(user.reset_code_expiry);
+
+        if (now > expiryTime) {
+          return res.status(400).json({ message: "Verification code has expired" });
+        }
+
+        if (user.reset_code !== code) {
+          return res.status(400).json({ message: "Invalid verification code" });
+        }
+
+        res.status(200).json({ success: true, message: "Code verified successfully" });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+// Reset Password
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    const db = req.db;
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    db.execute(
+      "UPDATE user SET password = ?, reset_code = NULL, reset_code_expiry = NULL WHERE email = ?",
+      [hashedPassword, email],
+      (err) => {
+        if (err) return res.status(500).json({ message: "Server Error", error: err });
+
+        res.status(200).json({ success: true, message: "Password reset successfully" });
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
 };

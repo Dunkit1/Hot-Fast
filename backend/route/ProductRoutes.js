@@ -9,7 +9,8 @@ const {
     updateProduct,
     deactivateProduct,
     getAllCategories,
-    getProductStock
+    getProductStock,
+    getProductNamesByIds
 } = require("../controller/ProductController");
 
 // Create new product (Manager and Admin only)
@@ -20,6 +21,9 @@ router.get("/", getAllProducts);
 
 // Get all categories
 router.get("/categories", getAllCategories);
+
+// Get product names by IDs
+router.get("/names-by-ids", getProductNamesByIds);
 
 // Get products by category
 router.get("/category/:category", getProductsByCategory);
