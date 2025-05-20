@@ -91,7 +91,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0b1e] text-white p-8">
+    <div className="min-h-screen bg-[#0a0b1e] text-white pt-20 p-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

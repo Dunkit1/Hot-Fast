@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import menuBoard from '../assets/images/restaurant-interior-2.jpg'; // You'll need to add this image
 
 const Services = () => {
     const navigate = useNavigate();
+    const [showInfoModal, setShowInfoModal] = useState(false);
+
+    const handleOrderNowClick = () => {
+        setShowInfoModal(true);
+    };
+
+    const handleModalClose = (destination) => {
+        setShowInfoModal(false);
+        if (destination) {
+            navigate(destination);
+        }
+    };
 
     const menuCategories = [
         {
@@ -211,7 +223,7 @@ const Services = () => {
                             Experience our delicious menu today
                         </p>
                         <button 
-                            onClick={() => navigate('/product-store')}
+                            onClick={handleOrderNowClick}
                             className="bg-green-500 text-white px-8 py-3 rounded hover:bg-green-600 transform hover:scale-105 transition-all duration-300"
                         >
                             Order Now
@@ -219,6 +231,43 @@ const Services = () => {
                     </motion.div>
                 </div>
             </div>
+
+            {/* Info Modal */}
+            {showInfoModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
+                    >
+                        <h3 className="text-2xl font-bold text-gray-800 mb-4">Choose Your Order Type</h3>
+                        <p className="text-gray-600 mb-6">
+                            For larger orders or custom requirements, we recommend using our Production Order system. 
+                            Otherwise, you can browse our available items in our product store.
+                        </p>
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={() => handleModalClose('/production-order')}
+                                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300"
+                            >
+                                Production Order
+                            </button>
+                            <button
+                                onClick={() => handleModalClose('/product-store')}
+                                className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all duration-300"
+                            >
+                                Browse Product Store
+                            </button>
+                            <button
+                                onClick={() => handleModalClose()}
+                                className="w-full bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all duration-300"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,18 +42,21 @@ const Navbar = () => {
               Services
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
             </Link>
-            <Link to="/feedback" className="text-lg font-medium text-white hover:text-green-400 transition-colors duration-300 relative group">
-              Feedback
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </Link>
+
           </div>
 
-          {/* Login/Signup Buttons */}
+          {/* Login/Signup/Profile Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/login" className="text-lg font-medium text-white hover:text-green-400 transition-colors duration-300 px-5 py-2">
+            <Link 
+              to="/login" 
+              className="text-lg font-medium text-white hover:text-green-400 transition-colors duration-300 px-5 py-2"
+            >
               Login
             </Link>
-            <Link to="/signup" className="text-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-300 px-5 py-2 rounded-lg">
+            <Link 
+              to="/signup" 
+              className="text-lg font-medium text-white bg-green-600 hover:bg-green-700 transition-colors duration-300 px-5 py-2 rounded-lg"
+            >
               Sign Up
             </Link>
           </div>
@@ -107,24 +111,13 @@ const Navbar = () => {
             >
               Services
             </Link>
-            <Link
-              to="/feedback"
-              className="block px-3 py-2.5 text-lg font-medium text-white hover:text-green-400 hover:bg-white/5 rounded-lg transition-all duration-300"
-            >
-              Feedback
-            </Link>
+
             <div className="pt-4 space-y-2">
               <Link
                 to="/login"
                 className="block w-full px-3 py-2.5 text-lg font-medium text-white hover:text-green-400 text-center rounded-lg border border-white/20 hover:bg-white/5 transition-all duration-300"
               >
                 Login
-              </Link>
-              <Link
-                to="/signup"
-                className="block w-full px-3 py-2.5 text-lg font-medium text-white bg-green-600 hover:bg-green-700 text-center rounded-lg transition-all duration-300"
-              >
-                Sign Up
               </Link>
             </div>
           </div>

@@ -376,15 +376,20 @@ const RecipeManagement = () => {
 
                   <div className="ingredient-field">
                     <label className="form-label">Quantity Required per Unit</label>
-                    <input
-                      type="number"
-                      value={ingredient.quantity_required_per_unit}
-                      onChange={(e) => handleIngredientChange(index, 'quantity_required_per_unit', e.target.value)}
-                      className="form-input"
-                      step="0.01"
-                      min="0.01"
-                      required
-                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={ingredient.quantity_required_per_unit}
+                        onChange={(e) => handleIngredientChange(index, 'quantity_required_per_unit', e.target.value)}
+                        className="form-input flex-1"
+                        step="0.01"
+                        min="0.01"
+                        required
+                      />
+                      <span className="text-gray-400">
+                        {inventoryItems.find(item => item.item_id === parseInt(ingredient.ingredient_item_id))?.unit || ''}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="remove-btn-container">

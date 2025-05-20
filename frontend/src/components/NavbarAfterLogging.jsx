@@ -23,14 +23,14 @@ const NavbarAfterLogging = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to="/" className="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">
+            <Link to="/homeafterlogging" className="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">
               Hot-Fast
             </Link>
           </div>
 
           {/* Desktop Menu - Centered */}
           <div className="hidden md:flex items-center justify-center flex-1 space-x-8">
-            <Link to="/" className="text-lg font-medium text-white hover:text-green-400 transition-colors duration-300 relative group">
+            <Link to="/homeafterlogging" className="text-lg font-medium text-white hover:text-green-400 transition-colors duration-300 relative group">
               Home
               <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
             </Link>
@@ -50,19 +50,14 @@ const NavbarAfterLogging = () => {
 
           {/* Login/Signup/Profile Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              to="/profile" 
-              className="text-lg font-medium text-white hover:text-green-400 transition-all duration-300 p-2 rounded-full hover:bg-white/10"
-            >
-              <FaUser className="text-xl" />
-            </Link>
-            <Link 
-              to="/login" 
-              className="text-lg font-medium text-white hover:text-green-400 transition-colors duration-300 px-5 py-2"
-            >
-              Login
-            </Link>
-          </div>
+  <Link 
+    to="/profile" 
+    className="text-lg font-medium text-white hover:text-green-400 transition-all duration-300 p-2 rounded-full hover:bg-white/10 flex items-center gap-2"
+  >
+    <FaUser className="text-xl" />
+    <span className="text-white hover:text-green-400">My Orders</span>
+  </Link>
+</div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
@@ -97,7 +92,7 @@ const NavbarAfterLogging = () => {
         >
           <div className="px-2 pt-2 pb-3 space-y-1 bg-black/90 backdrop-blur-lg rounded-lg mt-2">
             <Link
-              to="/"
+              to="/homeafterlogging"
               className="block px-3 py-2.5 text-lg font-medium text-white hover:text-green-400 hover:bg-white/5 rounded-lg transition-all duration-300"
             >
               Home

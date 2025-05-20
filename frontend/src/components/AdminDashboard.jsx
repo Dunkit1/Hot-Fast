@@ -17,7 +17,8 @@ import {
   FaClipboard,
   FaComments,
   FaIndustry,
-  FaListAlt
+  FaListAlt,
+  FaBrain
 } from 'react-icons/fa';
 import ProductionNotifications from './ProductionNotifications';
 import axios from 'axios';
@@ -117,6 +118,26 @@ const AdminDashboard = () => {
       navigate('/purchase-management');
     } else if (path === 'inventory-stock') {
       navigate('/inventory-stock');
+    } else if (path === 'receipe') {
+      navigate('/recipe-management');
+    } else if (path === 'inventory-release') {
+      navigate('/inventory-release');
+    } else if (path === 'production-inventory-release') {
+      navigate('/production-inventory-release');
+    } else if (path === 'product-log') {
+      navigate('/product-log');
+    } else if (path === 'pos') {
+      navigate('/pos');
+    } else if (path === 'sales') {
+      navigate('/sales-dashboard');
+    } else if (path === 'orders') {
+      navigate('/orders');
+    } else if (path === 'users') {
+      navigate('/user-management');
+    } else if (path === 'feedback') {
+      navigate('/adminfeedback');
+    } else if (path === 'ai-prediction') {
+      navigate('/ai-prediction');
     } else {
       setActiveTab(path);
     }
@@ -124,47 +145,49 @@ const AdminDashboard = () => {
 
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: <FaHome className="w-6 h-6" /> },
+    { id: 'orders', label: 'Orders', icon: <FaShoppingBag className="w-6 h-6" /> },
+    { id: 'products', label: 'Products', icon: <FaBox className="w-6 h-6" /> },
+    { id: 'sales', label: 'Sales Management', icon: <FaChartLine className="w-6 h-6" /> },
     { id: 'users', label: 'Users', icon: <FaUsers className="w-6 h-6" /> },
     { id: 'inventory', label: 'Inventory Items', icon: <FaBoxes className="w-6 h-6" /> },
     { id: 'purchase', label: 'Purchases', icon: <FaShoppingCart className="w-6 h-6" /> },
     { id: 'inventory-stock', label: 'Current Inventory Stock', icon: <FaWarehouse className="w-6 h-6" /> },
+    { id: 'receipe', label: 'Receipes', icon: <FaClipboard className="w-6 h-6" /> },
+    { id: 'inventory-release', label: 'Inventory Release', icon: <FaBoxOpen className="w-6 h-6" /> },
+    { id: 'production-inventory-release', label: 'Production Inventory Release', icon: <FaIndustry className="w-6 h-6" /> },
+    { id: 'product-log', label: 'Product Logs', icon: <FaListAlt className="w-6 h-6" /> },
+    { id: 'pos', label: 'POS System', icon: <FaCashRegister className="w-6 h-6" /> },
+    { id: 'feedback', label: 'AI Sales Prediction', icon: <FaComments className="w-6 h-6" /> },
+    { id: 'ai-prediction', label: 'Feedback', icon: <FaBrain className="w-6 h-6" /> },
 
   ];
 
+  const statsCards = [
+    { 
+      title: 'Total Orders', 
+      value: stats.totalOrders.toString(), 
+      change: '+12%', 
+      trend: 'up' 
+    },
+    { 
+      title: 'Active Users', 
+      value: stats.activeUsers.toString(), 
+      change: '+5%', 
+      trend: 'up' 
+    },
+    { 
+      title: 'Pending Orders', 
+      value: stats.pendingOrders.toString(), 
+      change: stats.pendingOrders > 10 ? '-2%' : '+2%', 
+      trend: stats.pendingOrders > 10 ? 'down' : 'up' 
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <>
       <ProductionNotifications />
-      {/* Sidebar */}
-      <motion.div
-        initial={{ x: -250 }}
-        animate={{ x: 0 }}
-        className="fixed left-0 top-0 h-full w-72 bg-white p-6 shadow-lg"
-      >
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-green-600">HOT-FAST</h1>
-          <p className="text-gray-600">Admin Dashboard</p>
-        </div>
-        <nav className="space-y-2">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleNavigation(item.id)}
-              className={`w-full flex items-center text-left px-4 py-3 rounded-lg transition-all duration-300 ${
-                activeTab === item.id
-                  ? 'bg-green-500 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <span className="mr-3">{item.icon}</span>
-              <span className="text-base whitespace-nowrap">{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </motion.div>
-
       {/* Main Content */}
-      <div className="ml-72 p-8">
+      <div>
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl text-gray-800 font-bold">Dashboard Overview</h2>
@@ -246,8 +269,71 @@ const AdminDashboard = () => {
         </motion.div>
 
         {/* Management Options */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+          {[
+            {
+              icon: <FaBox className="text-3xl text-blue-500 mb-4" />,
+              title: "Product Management",
+              description: "Manage your products and categories",
+              onClick: () => handleNavigation('products'),
+            },
+            {
+              icon: <FaWarehouse className="text-3xl text-green-500 mb-4" />,
+              title: "Inventory Management",
+              description: "Track and manage inventory items",
+              onClick: () => handleNavigation('inventory'),
+            },
+            {
+              icon: <FaShoppingCart className="text-3xl text-purple-500 mb-4" />,
+              title: "Purchase Management",
+              description: "Handle purchase orders and suppliers",
+              onClick: () => handleNavigation('purchase'),
+            },
+            {
+              icon: <FaBoxOpen className="text-3xl text-yellow-500 mb-4" />,
+              title: "Inventory Stock",
+              description: "Monitor stock levels and movements",
+              onClick: () => handleNavigation('inventory-stock'),
+            },
+            {
+              icon: <FaClipboardList className="text-3xl text-red-500 mb-4" />,
+              title: "Recipe Management",
+              description: "Manage product recipes and ingredients",
+              onClick: () => handleNavigation('receipe'),
+            },
+            {
+              icon: <FaReceipt className="text-3xl text-indigo-500 mb-4" />,
+              title: "Inventory Release",
+              description: "Manage inventory releases and orders",
+              onClick: () => handleNavigation('inventory-release'),
+            },
+            {
+              icon: <FaIndustry className="text-3xl text-emerald-500 mb-4" />,
+              title: "Production Inventory Release",
+              description: "Manage production inventory releases and orders",
+              onClick: () => handleNavigation('production-inventory-release'),
+            },
+            {
+              icon: <FaCashRegister className="text-3xl text-emerald-500 mb-4" />,
+              title: "POS System",
+              description: "Process sales and manage transactions",
+              onClick: () => handleNavigation('pos'),
+            },
+          ].map((item, index) => (
+            <motion.div
+              key={item.title}
+              whileHover={{ scale: 1.02 }}
+              className="bg-white p-6 rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-all cursor-pointer"
+              onClick={item.onClick}
+            >
+              {item.icon}
+              <h3 className="text-xl text-gray-800 font-semibold mb-2">{item.title}</h3>
+              <p className="text-gray-600 text-base">{item.description}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

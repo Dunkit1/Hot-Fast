@@ -15,7 +15,7 @@ import {
   Popconfirm,
   DatePicker,
 } from "antd";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -163,7 +163,7 @@ const InventoryManagement = () => {
     // Set default date to current date and time
     releaseForm.setFieldsValue({
       releaseDate: dayjs(),
-      status: 'Pending'
+      status: "Pending",
     });
   };
 
@@ -176,11 +176,11 @@ const InventoryManagement = () => {
     try {
       setLoading(true);
       // Add your API call here to create a new release
-      console.log('Release values:', values);
-      toast.success('Release created successfully');
+      console.log("Release values:", values);
+      toast.success("Release created successfully");
       setIsReleaseModalVisible(false);
     } catch (err) {
-      console.error('Create release error:', err);
+      console.error("Create release error:", err);
       handleError(err);
     } finally {
       setLoading(false);
@@ -309,7 +309,7 @@ const InventoryManagement = () => {
               <Button
                 type="primary"
                 onClick={showCreateModal}
-                className="bg-blue-500 hover:bg-blue-600 border-none text-white"
+                className="!bg-blue-500 hover:!bg-blue-600 !border-none !text-white !px-6 !py-6 !text-lg !rounded-md"
               >
                 Add New Item
               </Button>
@@ -338,8 +338,13 @@ const InventoryManagement = () => {
         <Modal
           title={
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-semibold text-black">Create New Inventory Item</h3>
-              <button onClick={handleCreateCancel} className="text-gray-500 hover:text-black">
+              <h3 className="text-2xl font-semibold text-black">
+                Create New Inventory Item
+              </h3>
+              <button
+                onClick={handleCreateCancel}
+                className="text-gray-500 hover:text-black"
+              >
                 <span className="text-2xl">×</span>
               </button>
             </div>
@@ -349,12 +354,12 @@ const InventoryManagement = () => {
           footer={null}
           closable={false}
           className="inventory-modal"
-          width={800}
+          width={850}
           styles={{
             content: {
-              background: '#ffffff',
-              padding: '24px',
-              borderRadius: '8px',
+              background: "#ffffff",
+              padding: "24px",
+              borderRadius: "8px",
             },
           }}
         >
@@ -368,8 +373,15 @@ const InventoryManagement = () => {
               <div className="grid grid-cols-2 gap-6">
                 <Form.Item
                   name="item_name"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Item Name <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter item name' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Item Name{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter item name" },
+                  ]}
                 >
                   <Input
                     placeholder="Enter item name"
@@ -379,8 +391,13 @@ const InventoryManagement = () => {
 
                 <Form.Item
                   name="brand"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Brand <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter brand' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Brand{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[{ required: true, message: "Please enter brand" }]}
                 >
                   <Input
                     placeholder="Enter brand"
@@ -391,8 +408,15 @@ const InventoryManagement = () => {
 
               <Form.Item
                 name="item_description"
-                label={<div className="flex text-black"><span className="text-red-500"></span> Description <span className="text-red-500 ml-1"></span></div>}
-                rules={[{ required: true, message: 'Please enter description' }]}
+                label={
+                  <div className="flex text-black">
+                    <span className="text-red-500"></span> Description{" "}
+                    <span className="text-red-500 ml-1"></span>
+                  </div>
+                }
+                rules={[
+                  { required: true, message: "Please enter description" },
+                ]}
               >
                 <TextArea
                   placeholder="Enter item description"
@@ -404,8 +428,20 @@ const InventoryManagement = () => {
               <div className="grid grid-cols-2 gap-6">
                 <Form.Item
                   name="unit"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Unit <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter unit' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Unit{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter unit" },
+                    {
+                      pattern: /^[A-Za-z]+$/,
+                      message:
+                        "Unit must contain only letters (no numbers or symbols)",
+                    },
+                  ]}
                 >
                   <Input
                     placeholder="e.g., kg, pcs"
@@ -415,8 +451,15 @@ const InventoryManagement = () => {
 
                 <Form.Item
                   name="restock_level"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Restock Level <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter restock level' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Restock Level{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter restock level" },
+                  ]}
                 >
                   <Input
                     type="number"
@@ -428,8 +471,13 @@ const InventoryManagement = () => {
 
               <Form.Item
                 name="category"
-                label={<div className="flex text-black"><span className="text-red-500"></span> Category <span className="text-red-500 ml-1"></span></div>}
-                rules={[{ required: true, message: 'Please enter category' }]}
+                label={
+                  <div className="flex text-black">
+                    <span className="text-red-500"></span> Category{" "}
+                    <span className="text-red-500 ml-1"></span>
+                  </div>
+                }
+                rules={[{ required: true, message: "Please enter category" }]}
               >
                 <Input
                   placeholder="Enter category"
@@ -441,7 +489,7 @@ const InventoryManagement = () => {
             <div className="flex justify-end gap-3 mt-8">
               <Button
                 onClick={handleCreateCancel}
-                className="h-11 px-6 bg-white hover:bg-gray-100 text-black border border-gray-300 rounded-lg"
+                className="h-11 px-6 bg-white hover:bg-gray-100 text-black border border-gray-300 !py-6 rounded-lg"
               >
                 Cancel
               </Button>
@@ -459,8 +507,13 @@ const InventoryManagement = () => {
         <Modal
           title={
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-semibold text-black">Update Inventory Item</h3>
-              <button onClick={handleCancel} className="text-gray-500 hover:text-black">
+              <h3 className="text-2xl font-semibold text-black">
+                Update Inventory Item
+              </h3>
+              <button
+                onClick={handleCancel}
+                className="text-gray-500 hover:text-black"
+              >
                 <span className="text-2xl"></span>
               </button>
             </div>
@@ -472,9 +525,9 @@ const InventoryManagement = () => {
           width={800}
           styles={{
             content: {
-              background: '#ffffff',
-              padding: '24px',
-              borderRadius: '8px',
+              background: "#ffffff",
+              padding: "24px",
+              borderRadius: "8px",
             },
           }}
         >
@@ -488,8 +541,15 @@ const InventoryManagement = () => {
               <div className="grid grid-cols-2 gap-6">
                 <Form.Item
                   name="item_name"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Item Name <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter item name' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Item Name{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter item name" },
+                  ]}
                 >
                   <Input
                     placeholder="Enter item name"
@@ -499,8 +559,13 @@ const InventoryManagement = () => {
 
                 <Form.Item
                   name="brand"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Brand <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter brand' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Brand{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[{ required: true, message: "Please enter brand" }]}
                 >
                   <Input
                     placeholder="Enter brand"
@@ -511,8 +576,15 @@ const InventoryManagement = () => {
 
               <Form.Item
                 name="item_description"
-                label={<div className="flex text-black"><span className="text-red-500"></span> Description <span className="text-red-500 ml-1"></span></div>}
-                rules={[{ required: true, message: 'Please enter description' }]}
+                label={
+                  <div className="flex text-black">
+                    <span className="text-red-500"></span> Description{" "}
+                    <span className="text-red-500 ml-1"></span>
+                  </div>
+                }
+                rules={[
+                  { required: true, message: "Please enter description" },
+                ]}
               >
                 <TextArea
                   placeholder="Enter item description"
@@ -524,8 +596,20 @@ const InventoryManagement = () => {
               <div className="grid grid-cols-2 gap-6">
                 <Form.Item
                   name="unit"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Unit <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter unit' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Unit{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter unit" },
+                    {
+                      pattern: /^[A-Za-z]+$/,
+                      message:
+                        "Unit must contain only letters (no numbers or symbols)",
+                    },
+                  ]}
                 >
                   <Input
                     placeholder="e.g., kg, pcs"
@@ -535,8 +619,15 @@ const InventoryManagement = () => {
 
                 <Form.Item
                   name="restock_level"
-                  label={<div className="flex text-black"><span className="text-red-500"></span> Restock Level <span className="text-red-500 ml-1"></span></div>}
-                  rules={[{ required: true, message: 'Please enter restock level' }]}
+                  label={
+                    <div className="flex text-black">
+                      <span className="text-red-500"></span> Restock Level{" "}
+                      <span className="text-red-500 ml-1"></span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: "Please enter restock level" },
+                  ]}
                 >
                   <Input
                     type="number"
@@ -548,8 +639,13 @@ const InventoryManagement = () => {
 
               <Form.Item
                 name="category"
-                label={<div className="flex text-black"><span className="text-red-500"></span> Category <span className="text-red-500 ml-1"></span></div>}
-                rules={[{ required: true, message: 'Please enter category' }]}
+                label={
+                  <div className="flex text-black">
+                    <span className="text-red-500"></span> Category{" "}
+                    <span className="text-red-500 ml-1"></span>
+                  </div>
+                }
+                rules={[{ required: true, message: "Please enter category" }]}
               >
                 <Input
                   placeholder="Enter category"
@@ -577,7 +673,6 @@ const InventoryManagement = () => {
         </Modal>
 
         {/* Release Modal */}
-      
       </div>
 
       <style>{`
@@ -619,7 +714,7 @@ const InventoryManagement = () => {
         }
         .inventory-modal label {
           color: #333 !important;
-          font-size: 16px;
+          font-size: 18px !important;
           font-weight: 500;
         }
         .inventory-modal .ant-form-item-explain-error {
@@ -643,6 +738,7 @@ const InventoryManagement = () => {
         .inventory-modal .ant-input-textarea::placeholder {
           color: #999 !important;
           opacity: 1;
+          font-size:18px !important;
         }
         .inventory-modal .ant-input-number {
           width: 100% !important;

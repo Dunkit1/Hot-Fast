@@ -10,11 +10,12 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 // Payment Form Component
-const PaymentForm = ({ onSuccess, amount }) => {
+const PaymentForm = ({ onSuccess, amount, orderId }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -26,11 +27,21 @@ const PaymentForm = ({ onSuccess, amount }) => {
       return;
     }
 
+    if (!orderId) {
+      setError("Order ID is missing");
+      setProcessing(false);
+      return;
+    }
+
     try {
+      // Construct the return URL carefully to avoid query parameter issues
+      const baseUrl = window.location.origin;
+      const returnUrl = new URL(`${baseUrl}/order-confirmation/${orderId}`);
+
       const { error: submitError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/order-confirmation`,
+          return_url: returnUrl.toString(),
         },
         redirect: 'if_required',
       });
@@ -55,7 +66,7 @@ const PaymentForm = ({ onSuccess, amount }) => {
       )}
       <button
         type="submit"
-        disabled={!stripe || processing}
+        disabled={!stripe || processing || !orderId}
         className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {processing ? 'Processing...' : 'Pay Now'}
@@ -178,7 +189,6 @@ const Checkout = () => {
         throw new Error('No order ID received from server');
       }
 
-      //set the Order IDcinstate
       setOrderId(orderResponse.data.order_id);
 
       // Then create payment intent
@@ -222,9 +232,9 @@ const Checkout = () => {
       }
 
       toast.success('Payment completed successfully!');
-      navigate(`/order-confirmation/${orderId}`, {
-        state: {
-          paymentId: paymentIntent.id,
+      navigate(`/order-confirmation/${orderId}`, { 
+        state: { 
+          orderId: orderId,
           paymentId: paymentIntent.id,
           orderDetails: {
             items: cart,
@@ -280,10 +290,6 @@ const Checkout = () => {
                 <span>Subtotal</span>
                 <span>Rs.{calculateTotal().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between mb-2">
-                <span>Shipping</span>
-                <span>Free</span>
-              </div>
               <div className="flex justify-between text-xl font-bold">
                 <span>Total</span>
                 <span className="text-green-500">Rs.{calculateTotal().toFixed(2)}</span>
@@ -297,7 +303,7 @@ const Checkout = () => {
             animate={{ opacity: 1, x: 0 }}
             className="bg-[#1B2028]/90 rounded-lg p-6"
           >
-            <h2 className="text-xl font-semibold mb-4">Payment Details</h2>
+            <h2 className="text-xl font-semibold mb-4">Delivery Details</h2>
             {clientSecret ? (
               <div className="mt-6">
                 <Elements stripe={stripePromise} options={{
@@ -312,7 +318,11 @@ const Checkout = () => {
                     }
                   }
                 }}>
-                  <PaymentForm onSuccess={handlePaymentSuccess} />
+                  <PaymentForm 
+                    onSuccess={handlePaymentSuccess}
+                    amount={calculateTotal()}
+                    orderId={orderId}
+                  />
                 </Elements>
               </div>
             ) : (
@@ -342,16 +352,19 @@ const Checkout = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    className="w-full bg-[#2a3441] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/30"
-                    required
-                  />
-                </div>
+  <label className="block text-sm font-medium mb-2">Phone</label>
+  <input
+    type="tel"
+    name="phone"
+    value={formData.phone}
+    onChange={handleInputChange}
+    pattern="0[0-9]{9}"
+    maxLength="10"
+    title="Phone number must start with 0 and be exactly 10 digits long"
+    className="w-full bg-[#2a3441] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500/30"
+    required
+  />
+</div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Address</label>

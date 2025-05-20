@@ -141,7 +141,7 @@ const Orders = () => {
       doc.setFontSize(10);
       doc.text(`Total Orders: ${stats.totalOrders}`, 20, 60);
       doc.text(`Completed Orders: ${stats.completedOrders}`, 80, 60);
-      doc.text(`Pending Orders: ${stats.pendingOrders}`, 140, 60);
+      doc.text(`Processing Orders: ${stats.pendingOrders}`, 140, 60);
 
       // Add orders table
       const tableData = orders.map((order) => [
@@ -224,8 +224,8 @@ const Orders = () => {
     if (!Array.isArray(ordersData)) return;
 
     const total = ordersData.length;
-    const pending = ordersData.filter(
-      (order) => order.order_status === "PENDING"
+    const processing = ordersData.filter(
+      (order) => order.order_status === "PROCESSING"
     ).length;
     const completed = ordersData.filter(
       (order) => order.order_status === "COMPLETED"
@@ -233,7 +233,7 @@ const Orders = () => {
 
     setStats({
       totalOrders: total,
-      pendingOrders: pending,
+      processingOrders: processing,
       completedOrders: completed,
     });
   };
@@ -374,9 +374,9 @@ const Orders = () => {
               </p>
             </div>
             <div className="bg-yellow-50 rounded-lg p-4 shadow-sm">
-              <p className="text-gray-600 text-sm">Pending Orders</p>
+              <p className="text-gray-600 text-sm">Processing Orders</p>
               <p className="text-2xl font-bold text-yellow-600 mt-1">
-                {stats.pendingOrders}
+                {stats.processingOrders}
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-4 shadow-sm">
@@ -492,7 +492,6 @@ const Orders = () => {
                     }
                     className="w-full"
                     options={[
-                      { value: "PENDING", label: "Pending" },
                       { value: "PROCESSING", label: "Processing" },
                       { value: "COMPLETED", label: "Completed" },
                     ]}

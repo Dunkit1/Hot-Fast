@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import bgImage from '../assets/images/Homepg.jpg';
 import { useNavigate } from 'react-router-dom';
+import { FaUser } from 'react-icons/fa';
 
 const Home = () => {
   const [count1, setCount1] = useState(0);
@@ -49,12 +50,13 @@ const Home = () => {
             </p>
             <div className="flex gap-6">
               <button 
-                onClick={() => navigate('/product-store')}
+                onClick={() => navigate('/login')}
                 className="bg-green-500 text-white px-8 py-3 rounded hover:bg-green-600 transition-all duration-300 transform hover:scale-105"
               >
                 Order Now
               </button>
-              <button className="border border-white text-white px-8 py-3 rounded hover:bg-white/10 transition-all duration-300">
+              <button className="border border-white text-white px-8 py-3 rounded hover:bg-white/10 transition-all duration-300"
+                onClick={() => navigate('/menu')}>
                 View Menu
               </button>
             </div>

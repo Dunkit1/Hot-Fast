@@ -218,7 +218,7 @@ const Login = () => {
                 </label>
               </div>
               <motion.div whileHover={{ scale: 1.05 }}>
-                <Link to="/forgot-password" className="text-green-500 text-sm hover:text-green-400 transition-colors">
+                <Link to="/forget-password" className="text-green-500 text-sm hover:text-green-400 transition-colors">
                   Forgot password?
                 </Link>
               </motion.div>
